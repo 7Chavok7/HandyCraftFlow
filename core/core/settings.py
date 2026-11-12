@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     # external
     
     # internal
+    'apps.workspaces',
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
