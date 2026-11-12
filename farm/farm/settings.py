@@ -22,9 +22,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     # external
+    "rest_framework",
     
     # internal
-
+    "apps.printers",
 ]
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -103,6 +104,7 @@ MAILERS = {
         'BACKEND': 'django.core.mail.backends.console.EmailBackend',
     },
 }
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Celery
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")

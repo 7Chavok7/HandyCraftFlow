@@ -1,0 +1,8 @@
+# farm/apps/printers/apps.py
+from django.apps import AppConfig
+
+
+class PrintersConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.printers"
+    verbose_name = "Принтеры"
