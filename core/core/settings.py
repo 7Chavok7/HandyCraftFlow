@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'apps.promo',
     'apps.integration',
     'apps.alerts',
+    'apps.api',
 ]
 
 MIDDLEWARE = [
@@ -131,8 +132,11 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication",
     ],
     "DEFAULT_PERMISSION_CLASSES": [
-        "rest_framework.permissions.IsAuthenticated",
+        "rest_framework.permissions.AllowAny", 
+        # "rest_framework.permissions.IsAuthenticated", Когда появится фронт — переключим на IsAuthenticated + JWT
     ],
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 50,
 }
 
 # Внутренний токен API (Core <-> Farm)

@@ -27,10 +27,12 @@ def calculate_cost(variant) -> Decimal:
     + труд × эффективная ставка часа
     + надбавка варианта
     """
+
     try:
         recipe = variant.recipe
     except Recipe.DoesNotExist:
-        return variant.extra_cost or Decimal("0")
+        extra = variant.extra_cost or Decimal("0")
+        return extra.quantize(Decimal("0.01"))
 
     total = Decimal("0")
 

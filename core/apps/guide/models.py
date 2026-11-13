@@ -18,6 +18,7 @@ class Unit(models.Model):
     class Meta:
         verbose_name = 'Единица измерения'
         verbose_name_plural = 'Единицы измерения'
+        ordering = ["name"]
         
     def __str__(self):
         return self.short_name
@@ -55,6 +56,7 @@ class Color(models.Model):
     class Meta:
         verbose_name = 'Цвет'
         verbose_name_plural = 'Цвета'
+        ordering = ["name"]
         
     def __str__(self):
         if self.ral_code:
@@ -73,6 +75,7 @@ class Country(models.Model):
     class Meta:
         verbose_name = 'Страна',
         verbose_name_plural = 'Страны'
+        ordering = ["name"]
         
     def __str__(self):
         return self.name
@@ -96,6 +99,7 @@ class Manufacturer(models.Model):
     class Meta:
         verbose_name = 'Производитель'
         verbose_name_plural = 'Производители'
+        ordering = ["name"]
         
     def __str__(self):
         if self.country:
