@@ -19,7 +19,7 @@ class Workspace(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.PROTECT,
-        related_name='workspace',
+        related_name='workspaces',
         verbose_name='Владлец'
     )
     created_at = models.DateTimeField(

@@ -1,3 +1,4 @@
+# core/apps/guide/apps.py
 from django.apps import AppConfig
 
 

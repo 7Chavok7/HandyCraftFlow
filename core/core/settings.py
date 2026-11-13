@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'apps.guide',
     'apps.workspaces',
     'apps.materials',
+    'apps.catalog',
 ]
 
 MIDDLEWARE = [

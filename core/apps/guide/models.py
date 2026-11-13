@@ -102,4 +102,3 @@ class Manufacturer(models.Model):
             return f"{self.name} ({self.country})"
         return self.name
     
-    

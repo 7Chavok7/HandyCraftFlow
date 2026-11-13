@@ -26,7 +26,7 @@ class TestWorkspace:
         assert str(workspace) == "Моя мастерская"
 
     def test_owner_related_name(self, user, workspace):
-        assert workspace in user.workspace.all()
+        assert workspace in user.workspaces.all()
 
 
 @pytest.mark.django_db

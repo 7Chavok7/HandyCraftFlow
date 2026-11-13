@@ -1,3 +1,4 @@
+# core/apps/materials/apps.py
 from django.apps import AppConfig
 
 
