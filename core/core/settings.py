@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'apps.economics',
     'apps.promo',
     'apps.integration',
+    'apps.alerts',
 ]
 
 MIDDLEWARE = [
