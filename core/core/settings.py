@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'apps.workspaces',
     'apps.materials',
     'apps.catalog',
+    'apps.production',
 ]
 
 MIDDLEWARE = [
@@ -98,6 +99,9 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = 'static/'
+
+MEDIA_URL = "media/"
+MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
