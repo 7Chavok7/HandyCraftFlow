@@ -9,7 +9,7 @@ class ProductionProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductionProfile
         fields = [
-            "id", "name", "equipment_type_hint",
+            "id", "workspace_id", "name", "equipment_type_hint",
             "expected_duration_min", "expected_material_weight",
             "source_file", "deviations_count", "created_at",
         ]
@@ -52,7 +52,7 @@ class ProductionJobSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductionJob
         fields = [
-            "id", "variant", "variant_name", "profile", "material_batch",
+            "id", "workspace_id", "variant", "variant_name", "profile", "material_batch",
             "equipment_id", "qty_planned", "qty_done", "qty_waste",
             "expected_weight", "expected_time_min",
             "actual_weight", "actual_time_min",

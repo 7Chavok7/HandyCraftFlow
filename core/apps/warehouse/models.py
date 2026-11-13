@@ -68,6 +68,7 @@ class Warehouse(models.Model):
                 name="unique_warehouse_per_workspace",
             ),
         ]
+        ordering = ["name"]
 
     def __str__(self):
         return f"{self.name} ({self.get_type_display()})"

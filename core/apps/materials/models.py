@@ -75,6 +75,7 @@ class MaterialType(models.Model):
             name = 'unique_material_type_per_workspace',
             )
         ]
+        ordering = ["name"]
         
     def __str__(self):
         return self.name

@@ -7,17 +7,21 @@ class SellerAccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = SellerAccount
         fields = [
-            "id", "marketplace", "name", "client_id",
+            "id", "workspace_id", "marketplace", "name", "client_id",
             "is_active", "last_sync_at", "created_at",
         ]
 
 
 class WarehouseSerializer(serializers.ModelSerializer):
+    is_active = serializers.BooleanField(default=True)
+
     class Meta:
         model = Warehouse
         fields = [
-            "id", "name", "type", "seller_account", "is_active", "created_at",
+            "id", "workspace_id", "name", "type",
+            "seller_account", "is_active", "created_at",
         ]
+        read_only_fields = ["id", "created_at"]
 
 
 class StockSerializer(serializers.ModelSerializer):

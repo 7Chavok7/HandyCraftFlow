@@ -21,7 +21,7 @@ class PromotionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Promotion
         fields = [
-            "id", "marketplace", "external_id", "name",
+            "id", "workspace_id", "marketplace", "external_id", "name",
             "starts_at", "ends_at", "discount_percent", "items",
             "created_at",
         ]

@@ -11,7 +11,7 @@ class MaterialTypeSerializer(serializers.ModelSerializer):
     class Meta:
         model = MaterialType
         fields = [
-            "id", "name", "kind", "unit", "unit_name",
+            "id", "workspace_id", "name", "kind", "unit", "unit_name",
             "polymer", "color", "color_name", "density",
             "min_balance", "current_balance", "is_active",
         ]

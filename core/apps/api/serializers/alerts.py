@@ -7,6 +7,6 @@ class AlertSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alert
         fields = [
-            "id", "type", "severity", "title", "message",
+            "id", "workspace_id", "type", "severity", "title", "message",
             "related_object_id", "is_read", "created_at",
         ]
