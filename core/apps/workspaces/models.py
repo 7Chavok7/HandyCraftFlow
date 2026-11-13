@@ -92,6 +92,12 @@ class WorkspaceSettings(models.Model):
         decimal_places=2,
         default=4,
     )
+    equipment_hour_cost = models.DecimalField(
+        "Стоимость часа оборудования, ₽", 
+        max_digits=12, 
+        decimal_places=2, 
+        default=0,
+    )
     
     class Meta:
         verbose_name = 'Настройки кабинета'
