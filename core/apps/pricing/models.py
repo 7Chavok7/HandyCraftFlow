@@ -69,3 +69,48 @@ class PriceHistory(models.Model):
 
     def __str__(self):
         return f"{self.variant} → {self.price} ₽ ({self.get_source_display()})"
+    
+    
+class MarketplaceFee(models.Model):
+    """Комиссия и логистика площадки по категории."""
+
+    marketplace = models.CharField(
+        "Площадка", max_length=20,
+        choices=[
+            ("wb", "Wildberries"),
+            ("ozon", "Ozon"),
+            ("yandex", "Яндекс Маркет"),
+            ("own", "Свой сайт"),
+            ("offline", "Офлайн"),
+        ],
+    )
+    category = models.ForeignKey(
+        "catalog.Category", on_delete=models.PROTECT,
+        null=True, blank=True, related_name="marketplace_fees",
+        verbose_name="Категория (если null — общая ставка)",
+    )
+    commission_percent = models.DecimalField(
+        "Комиссия, %", max_digits=5, decimal_places=2, default=0,
+    )
+    logistics_cost = models.DecimalField(
+        "Логистика, ₽", max_digits=12, decimal_places=2, default=0,
+    )
+    valid_from = models.DateField("Действует с", null=True, blank=True)
+    valid_to = models.DateField("Действует до", null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Комиссия площадки"
+        verbose_name_plural = "Комиссии площадок"
+        ordering = ["marketplace", "category"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["marketplace", "category"],
+                name="unique_fee_per_marketplace_category",
+                nulls_distinct=False,
+            ),
+        ]
+
+    def __str__(self):
+        cat = self.category.name if self.category else "общая"
+        return f"{self.get_marketplace_display()} / {cat}: {self.commission_percent}% + {self.logistics_cost} ₽"

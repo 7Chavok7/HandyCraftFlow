@@ -5,8 +5,8 @@ from decimal import Decimal
 import pytest
 from django.db import IntegrityError
 
-from apps.catalog.models import Product, ProductVariant
-from apps.pricing.models import PriceRule, PriceHistory
+from apps.catalog.models import Product, ProductVariant, Category
+from apps.pricing.models import PriceRule, PriceHistory, MarketplaceFee
 
 
 @pytest.fixture
@@ -84,3 +84,40 @@ class TestPriceHistory:
         entries = list(variant.price_history.all())
         assert entries[0] == h2
         assert entries[1] == h1
+     
+   
+@pytest.mark.django_db
+class TestMarketplaceFee:
+    def test_str(self):
+        fee = MarketplaceFee.objects.create(
+            marketplace="wb", commission_percent=Decimal("20"),
+            logistics_cost=Decimal("50"),
+        )
+        assert "Wildberries" in str(fee)
+        assert "20" in str(fee)
+
+    def test_str_with_category(self):
+        cat = Category.objects.create(workspace_id=uuid.uuid4(), name="Декор")
+        fee = MarketplaceFee.objects.create(
+            marketplace="wb", category=cat,
+            commission_percent=Decimal("25"),
+        )
+        assert "Декор" in str(fee)
+
+    def test_unique_marketplace_category(self):
+        MarketplaceFee.objects.create(marketplace="wb")
+        with pytest.raises(IntegrityError):
+            MarketplaceFee.objects.create(marketplace="wb")
+
+    def test_same_marketplace_different_category(self):
+        ws = uuid.uuid4()
+        c1 = Category.objects.create(workspace_id=ws, name="Декор")
+        c2 = Category.objects.create(workspace_id=ws, name="Кухня")
+        MarketplaceFee.objects.create(marketplace="wb", category=c1)
+        fee = MarketplaceFee.objects.create(marketplace="wb", category=c2)
+        assert fee.pk is not None
+
+    def test_defaults(self):
+        fee = MarketplaceFee.objects.create(marketplace="ozon")
+        assert fee.commission_percent == Decimal("0")
+        assert fee.logistics_cost == Decimal("0")

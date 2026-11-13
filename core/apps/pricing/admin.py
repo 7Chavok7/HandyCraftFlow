@@ -1,6 +1,6 @@
 # core/apps/pricing/admin.py
 from django.contrib import admin
-from .models import PriceRule, PriceHistory
+from .models import PriceRule, PriceHistory,MarketplaceFee
 
 
 @admin.register(PriceRule)
@@ -25,3 +25,12 @@ class PriceHistoryAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+    
+    
+@admin.register(MarketplaceFee)
+class MarketplaceFeeAdmin(admin.ModelAdmin):
+    list_display = (
+        "marketplace", "category", "commission_percent",
+        "logistics_cost", "valid_from", "valid_to",
+    )
+    list_filter = ("marketplace",)

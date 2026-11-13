@@ -72,3 +72,7 @@ class TestEffectiveLaborRate:
             income_goal=None,
         )
         assert s.effective_labor_rate == Decimal("0")
+    
+    def test_equipment_hour_cost_default(self, workspace):
+        s = WorkspaceSettings.objects.create(workspace=workspace)
+        assert s.equipment_hour_cost == Decimal("0")
