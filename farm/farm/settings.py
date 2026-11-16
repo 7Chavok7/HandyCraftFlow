@@ -126,3 +126,7 @@ REST_FRAMEWORK = {
 
 # Внутренний токен API (Core <-> Farm)
 INTERNAL_API_TOKEN = os.getenv("INTERNAL_API_TOKEN", "dev-token")
+
+# Core API
+CORE_API_URL = os.getenv("CORE_API_URL", "http://localhost:8000")
+INTERNAL_API_TOKEN = os.getenv("INTERNAL_API_TOKEN", "dev-token")

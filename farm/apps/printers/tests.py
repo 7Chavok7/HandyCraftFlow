@@ -3,6 +3,8 @@ import uuid
 
 import pytest
 
+from unittest.mock import patch, MagicMock
+
 from apps.printers import services
 from apps.printers.models import Printer, AmsSlot, FarmJob
 
@@ -238,3 +240,57 @@ class TestFarmJobAPI:
         assert r.status_code == 200
         job.refresh_from_db()
         assert job.status == FarmJob.Status.CANCELLED
+        
+        
+@pytest.mark.django_db
+class TestCoreClient:
+    def test_send_report_ok(self, settings):
+        settings.CORE_API_URL = "http://core-test"
+        settings.INTERNAL_API_TOKEN = "secret"
+
+        with patch("apps.printers.core_client.requests.post") as mock_post:
+            mock_post.return_value = MagicMock(status_code=200, text="ok")
+
+            from apps.printers.core_client import send_report_to_core
+            result = send_report_to_core(
+                production_job_id="abc-123",
+                qty_done=10,
+                qty_waste=1,
+                actual_weight="12.5",
+                actual_time_min=45,
+                comment="тест",
+            )
+
+            assert result is True
+            mock_post.assert_called_once()
+            call_kwargs = mock_post.call_args.kwargs
+            assert "http://core-test/api/v1/jobs/abc-123/report/" in mock_post.call_args.args
+            assert call_kwargs["headers"]["X-Internal-Token"] == "secret"
+            assert call_kwargs["json"]["qty_done"] == 10
+
+    def test_send_report_http_error(self, settings):
+        settings.CORE_API_URL = "http://core-test"
+        settings.INTERNAL_API_TOKEN = "secret"
+
+        with patch("apps.printers.core_client.requests.post") as mock_post:
+            mock_post.return_value = MagicMock(status_code=400, text="bad")
+
+            from apps.printers.core_client import send_report_to_core
+            result = send_report_to_core(
+                production_job_id="abc", qty_done=1,
+            )
+            assert result is False
+
+    def test_send_report_network_error(self, settings):
+        import requests
+        settings.CORE_API_URL = "http://core-test"
+        settings.INTERNAL_API_TOKEN = "secret"
+
+        with patch("apps.printers.core_client.requests.post") as mock_post:
+            mock_post.side_effect = requests.RequestException("timeout")
+
+            from apps.printers.core_client import send_report_to_core
+            result = send_report_to_core(
+                production_job_id="abc", qty_done=1,
+            )
+            assert result is False
