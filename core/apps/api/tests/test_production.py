@@ -81,3 +81,24 @@ class TestProductionJobReportAPI:
             HTTP_X_INTERNAL_TOKEN=settings.INTERNAL_API_TOKEN,
         )
         assert response.status_code == 200
+        
+    def test_complete_without_internal_token(self, variant):
+        from apps.catalog.models import Product
+        from apps.warehouse.models import Warehouse
+        ws_id = uuid.uuid4()
+        Warehouse.objects.create(
+            workspace_id=ws_id, name="Склад", type=Warehouse.Type.OWN,
+        )
+        product = Product.objects.create(workspace_id=ws_id, name="X")
+        v = ProductVariant.objects.create(product=product, name="Y")
+        job = ProductionJob.objects.create(
+            workspace_id=ws_id, variant=v, qty_planned=5,
+        )
+        client = APIClient()
+        response = client.post(
+            f"/api/v1/jobs/{job.id}/complete/",
+            {"qty_done": 5}, format="json",
+        )
+        assert response.status_code == 200
+        job.refresh_from_db()
+        assert job.status == ProductionJob.Status.DONE

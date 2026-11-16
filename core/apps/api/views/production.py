@@ -70,3 +70,25 @@ class ProductionJobViewSet(viewsets.ModelViewSet):
             return Response({"error": str(exc)}, status=400)
 
         return Response(ProductionJobSerializer(job).data)
+    
+    
+    @action(detail=True, methods=["post"])
+    def complete(self, request, pk=None):
+        """Завершить задание вручную (фронт, если Farm недоступен)."""
+        job = self.get_object()
+        serializer = ProductionJobReportSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            complete_production_job(
+                job=job,
+                qty_done=serializer.validated_data["qty_done"],
+                qty_waste=serializer.validated_data["qty_waste"],
+                actual_weight=serializer.validated_data.get("actual_weight"),
+                actual_time_min=serializer.validated_data.get("actual_time_min"),
+                comment=serializer.validated_data.get("comment", ""),
+            )
+        except ValueError as exc:
+            return Response({"error": str(exc)}, status=400)
+
+        return Response(ProductionJobSerializer(job).data)
