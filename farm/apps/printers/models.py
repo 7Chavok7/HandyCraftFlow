@@ -61,3 +61,60 @@ class AmsSlot(models.Model):
 
     def __str__(self):
         return f"{self.printer.name} · слот {self.slot_number}"
+    
+    
+class FarmJob(models.Model):
+    """Задание на печать в Farm.
+
+    Ссылается на ProductionJob в Core по production_job_id (UUID).
+    Farm не импортирует Core — только хранит UUID.
+    """
+
+    class Status(models.TextChoices):
+        ASSIGNED = "assigned", "Назначено"
+        PRINTING = "printing", "Печатает"
+        PAUSED = "paused", "Пауза"
+        DONE = "done", "Завершено"
+        CANCELLED = "cancelled", "Отменено"
+        ERROR = "error", "Ошибка"
+
+    workspace_id = models.UUIDField("ID кабинета (из Core)", db_index=True)
+    production_job_id = models.UUIDField(
+        "ID задания в Core", db_index=True, unique=True,
+    )
+    printer = models.ForeignKey(
+        Printer, on_delete=models.PROTECT, related_name="jobs",
+    )
+    ams_slot = models.ForeignKey(
+        AmsSlot, on_delete=models.SET_NULL,
+        null=True, blank=True, related_name="jobs",
+    )
+    status = models.CharField(
+        "Статус", max_length=20, choices=Status.choices, default=Status.ASSIGNED,
+    )
+    qty_planned = models.PositiveIntegerField("План, шт", default=1)
+    qty_done = models.PositiveIntegerField("Готово, шт", default=0)
+    qty_waste = models.PositiveIntegerField("Брак, шт", default=0)
+    actual_weight = models.DecimalField(
+        "Фактический вес, г", max_digits=12, decimal_places=3,
+        null=True, blank=True,
+    )
+    actual_time_min = models.PositiveIntegerField(
+        "Фактическое время, мин", null=True, blank=True,
+    )
+    comment = models.TextField("Комментарий", blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    started_at = models.DateTimeField(null=True, blank=True)
+    finished_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Задание на печать"
+        verbose_name_plural = "Задания на печать"
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["workspace_id", "status"]),
+            models.Index(fields=["printer", "-created_at"]),
+        ]
+
+    def __str__(self):
+        return f"#{self.pk} → printer {self.printer_id} ({self.get_status_display()})"
