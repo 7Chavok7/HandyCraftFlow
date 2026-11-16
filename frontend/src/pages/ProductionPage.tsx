@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import { Table, Spin, Tag, Button, Modal, Form, InputNumber, message } from "antd";
-import { CheckOutlined, PlusOutlined } from "@ant-design/icons";
+import { Table, Spin, Tag, Button, Modal, Form, InputNumber, Input, message } from "antd";
+import { CheckOutlined } from "@ant-design/icons";
 import { fetchJobs, completeJob } from "../api/production";
 import type { ProductionJob } from "../api/production";
-import { useAuth } from "../context/AuthContext";
 
 const STATUS_COLOR: Record<string, string> = {
   queued: "default",
@@ -15,7 +14,6 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export default function ProductionPage() {
-  const { me } = useAuth();
   const [jobs, setJobs] = useState<ProductionJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [completeOpen, setCompleteOpen] = useState(false);
