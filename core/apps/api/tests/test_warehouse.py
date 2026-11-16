@@ -4,7 +4,8 @@ import pytest
 from decimal import Decimal
 from rest_framework.test import APIClient
 
-from apps.warehouse.models import Warehouse
+from apps.catalog.models import Product, ProductVariant
+from apps.warehouse.models import Warehouse, Stock
 
 
 @pytest.mark.django_db
@@ -17,6 +18,20 @@ class TestWarehouseAPI:
         response = client.get("/api/v1/warehouses/")
         assert response.status_code == 200
         assert response.data["count"] == 1
+        
+    def test_list_has_warehouse_name(self):
+
+        ws = uuid.uuid4()
+        p = Product.objects.create(workspace_id=ws, name="X")
+        v = ProductVariant.objects.create(product=p, name="Y")
+        wh = Warehouse.objects.create(
+            workspace_id=ws, name="WB FBO Коледино", type=Warehouse.Type.FBO,
+        )
+        Stock.objects.create(variant=v, warehouse=wh, qty=Decimal("5"))
+        client = APIClient()
+        response = client.get("/api/v1/stocks/")
+        assert response.data["results"][0]["warehouse_name"] == "WB FBO Коледино"
+        assert response.data["results"][0]["warehouse_type"] == "fbo"
 
     def test_create(self):
         client = APIClient()

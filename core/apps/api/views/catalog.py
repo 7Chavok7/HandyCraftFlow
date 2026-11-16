@@ -2,6 +2,7 @@ from decimal import Decimal
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser, JSONParser
 
 from apps.catalog.models import (
     Category, 
@@ -32,11 +33,13 @@ class CategoryViewSet(viewsets.ModelViewSet):
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = Product.objects.prefetch_related("variants")
     serializer_class = ProductSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
 
 class ProductVariantViewSet(viewsets.ModelViewSet):
     queryset = ProductVariant.objects.select_related("product")
     serializer_class = ProductVariantSerializer
+    parser_classes = [MultiPartParser, FormParser, JSONParser]
 
     @action(detail=True, methods=["get"], url_path="detail")
     def detail_view(self, request, pk=None):

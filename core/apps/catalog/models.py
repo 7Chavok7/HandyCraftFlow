@@ -119,6 +119,9 @@ class Product(models.Model):
         'Название', 
         max_length=200
     )
+    image = models.ImageField(
+        "Главное фото", upload_to="products/", blank=True, null=True,
+    )
     description = models.TextField(
         'Описание', 
         blank=True
@@ -172,6 +175,9 @@ class ProductVariant(models.Model):
         null=True, 
         blank=True, 
         verbose_name='Цвет',
+    )
+    image = models.ImageField(
+        "Фото варианта", upload_to="variants/", blank=True, null=True,
     )
     vendor_code = models.CharField(
         'Артикул продавца', 

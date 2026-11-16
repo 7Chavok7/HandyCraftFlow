@@ -60,3 +60,35 @@ class TestVariantDetailAPI:
         response = client.get(f"/api/v1/variants/{variant.id}/detail/")
         assert response.status_code == 200
         assert len(response.data["stocks"]) == 1
+        
+        
+@pytest.mark.django_db
+class TestProductCRUD:
+    def test_create_product(self, workspace):
+        client = APIClient()
+        response = client.post("/api/v1/products/", {
+            "workspace_id": str(workspace.id),
+            "name": "Новый товар",
+            "description": "тест",
+            "is_active": True,
+        }, format="json")
+        assert response.status_code == 201
+        assert response.data["name"] == "Новый товар"
+
+    def test_update_product(self, workspace):
+        from apps.catalog.models import Product
+        p = Product.objects.create(workspace_id=workspace.id, name="Старый")
+        client = APIClient()
+        response = client.patch(
+            f"/api/v1/products/{p.id}/", {"name": "Новый"}, format="json",
+        )
+        assert response.status_code == 200
+        p.refresh_from_db()
+        assert p.name == "Новый"
+
+    def test_delete_product(self, workspace):
+        from apps.catalog.models import Product
+        p = Product.objects.create(workspace_id=workspace.id, name="Удалить")
+        client = APIClient()
+        response = client.delete(f"/api/v1/products/{p.id}/")
+        assert response.status_code == 204

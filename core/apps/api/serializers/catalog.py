@@ -14,8 +14,9 @@ class ProductVariantSerializer(serializers.ModelSerializer):
         model = ProductVariant
         fields = [
             "id", "name", "color", "vendor_code", "barcode",
-            "extra_cost", "is_active",
+            "extra_cost", "is_active", "image",
         ]
+
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -25,7 +26,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             "id", "name", "category", "description",
-            "is_active", "variants", "created_at",
+            "is_active", "variants", "created_at", "image",
         ]
 
 
