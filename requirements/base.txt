@@ -3,5 +3,6 @@ djangorestframework>=3.16
 psycopg[binary]>=3.2
 python-dotenv>=1.0
 celery>=5.4
+Pillow>=13.0
 requests>=2.32
 redis>=5.0
