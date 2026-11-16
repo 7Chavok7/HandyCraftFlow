@@ -3,7 +3,8 @@ import uuid
 
 import pytest
 
-from apps.printers.models import Printer, AmsSlot
+from apps.printers import services
+from apps.printers.models import Printer, AmsSlot, FarmJob
 
 
 @pytest.fixture
@@ -117,3 +118,123 @@ class TestFarmJob:
         assert farm_job.actual_time_min is None
         assert farm_job.started_at is None
         assert farm_job.finished_at is None
+        
+        
+@pytest.mark.django_db
+class TestFarmJobServices:
+    def test_start_from_assigned(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+        )
+        services.start_job(farm_job=job)
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.PRINTING
+        assert job.started_at is not None
+
+    def test_start_from_done_raises(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+            status=FarmJob.Status.DONE,
+        )
+        with pytest.raises(ValueError):
+            services.start_job(farm_job=job)
+
+    def test_pause(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+            status=FarmJob.Status.PRINTING,
+        )
+        services.pause_job(farm_job=job)
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.PAUSED
+
+    def test_cancel(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+        )
+        services.cancel_job(farm_job=job, comment="сломался принтер")
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.CANCELLED
+        assert "сломался принтер" in job.comment
+
+    def test_finish(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+            status=FarmJob.Status.PRINTING,
+        )
+        services.finish_job(
+            farm_job=job, qty_done=10, qty_waste=1,
+            actual_weight=Decimal("12.5"), actual_time_min=45,
+        )
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.DONE
+        assert job.qty_done == 10
+        assert job.qty_waste == 1
+        assert job.finished_at is not None
+
+    def test_finish_from_assigned_raises(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+        )
+        with pytest.raises(ValueError):
+            services.finish_job(farm_job=job, qty_done=1)
+
+
+@pytest.mark.django_db
+class TestFarmJobAPI:
+    def _client(self):
+        from rest_framework.test import APIClient
+        return APIClient()
+
+    def test_start_api(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+        )
+        r = self._client().post(f"/farm/api/v1/jobs/{job.id}/start/")
+        assert r.status_code == 200
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.PRINTING
+
+    def test_finish_api(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+            status=FarmJob.Status.PRINTING,
+        )
+        r = self._client().post(
+            f"/farm/api/v1/jobs/{job.id}/finish/",
+            {"qty_done": 10, "qty_waste": 1, "actual_time_min": 45},
+            format="json",
+        )
+        assert r.status_code == 200
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.DONE
+
+    def test_cancel_api(self, workspace_id, printer_for_job):
+        job = FarmJob.objects.create(
+            workspace_id=workspace_id,
+            production_job_id=uuid.uuid4(),
+            printer=printer_for_job,
+        )
+        r = self._client().post(
+            f"/farm/api/v1/jobs/{job.id}/cancel/",
+            {"comment": "сломался"}, format="json",
+        )
+        assert r.status_code == 200
+        job.refresh_from_db()
+        assert job.status == FarmJob.Status.CANCELLED
