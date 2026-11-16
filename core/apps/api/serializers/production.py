@@ -59,3 +59,16 @@ class ProductionJobSerializer(serializers.ModelSerializer):
             "status", "comment",
             "created_at", "started_at", "finished_at",
         ]
+        
+
+class ProductionJobReportSerializer(serializers.Serializer):
+    qty_done = serializers.IntegerField(min_value=0)
+    qty_waste = serializers.IntegerField(min_value=0, default=0)
+    actual_weight = serializers.DecimalField(
+        max_digits=12, decimal_places=3,
+        required=False, allow_null=True,
+    )
+    actual_time_min = serializers.IntegerField(
+        required=False, allow_null=True, min_value=0,
+    )
+    comment = serializers.CharField(required=False, allow_blank=True, default="")
