@@ -60,3 +60,23 @@ export async function fetchProductsList(): Promise<Product[]> {
   const { data } = await api.get<Paginated<Product>>("/products/");
   return data.results;
 }
+
+export async function createProduct(formData: FormData): Promise<Product> {
+  const { data } = await api.post<Product>("/products/", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
+export async function updateProduct(
+  id: number, formData: FormData
+): Promise<Product> {
+  const { data } = await api.patch<Product>(`/products/${id}/`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return data;
+}
+
+export async function deleteProduct(id: number): Promise<void> {
+  await api.delete(`/products/${id}/`);
+}

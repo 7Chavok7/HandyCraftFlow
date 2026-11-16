@@ -19,6 +19,7 @@ export interface Product {
   is_active: boolean;
   variants: ProductVariant[];
   created_at: string;
+  image: string | null;
 }
 
 export interface ProductVariant {

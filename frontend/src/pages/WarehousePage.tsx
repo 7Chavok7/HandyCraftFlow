@@ -109,7 +109,13 @@ export default function WarehousePage() {
         rowKey="id"
         columns={[
           { title: "Вариант", dataIndex: "variant_name" },
-          { title: "Склад", dataIndex: "warehouse" },
+          {
+            title: "Склад",
+            render: (_, s: Stock) => (
+              <span>{s.warehouse_name}</span>
+              // <span>{s.warehouse_name} <Tag>{s.warehouse_type}</Tag></span>
+            ),
+          },
           { title: "Кол-во", dataIndex: "qty" },
           { title: "Резерв", dataIndex: "reserved_qty" },
           {

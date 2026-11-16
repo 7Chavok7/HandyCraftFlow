@@ -15,6 +15,8 @@ export interface Stock {
   variant: number;
   variant_name: string;
   warehouse: number;
+  warehouse_name: string;
+  warehouse_type: string;
   qty: string;
   reserved_qty: string;
   available_qty: string;
