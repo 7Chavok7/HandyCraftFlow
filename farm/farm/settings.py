@@ -106,6 +106,9 @@ MAILERS = {
 }
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
+# Watcher gcode
+GCODE_WATCH_DIR = os.getenv("GCODE_WATCH_DIR", "")
+
 # Celery
 CELERY_BROKER_URL = os.getenv("REDIS_URL", "redis://localhost:6379/0")
 CELERY_RESULT_BACKEND = CELERY_BROKER_URL
