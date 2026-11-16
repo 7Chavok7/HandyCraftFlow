@@ -7,6 +7,7 @@ from django.db import IntegrityError
 
 from apps.catalog.models import Product, ProductVariant
 from apps.warehouse.models import SellerAccount, Warehouse, Stock, StockLedger
+from apps.warehouse.services import adjust_stock, reserve_stock, unreserve_stock
 
 
 @pytest.fixture
@@ -146,3 +147,61 @@ class TestStockLedger:
     def test_movement_types_exist(self):
         assert StockLedger.MovementType.RESERVE.value == "reserve"
         assert StockLedger.MovementType.UNRESERVE.value == "unreserve"
+        
+        
+@pytest.mark.django_db
+class TestStockServices:
+    def _make_stock(self, workspace_id, qty="10"):
+        from apps.catalog.models import Product, ProductVariant
+        product = Product.objects.create(workspace_id=workspace_id, name="X")
+        variant = ProductVariant.objects.create(product=product, name="Y")
+        wh = Warehouse.objects.create(
+            workspace_id=workspace_id, name="Склад", type=Warehouse.Type.OWN,
+        )
+        return Stock.objects.create(variant=variant, warehouse=wh, qty=Decimal(qty))
+
+    def test_adjust_up(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        ledger = adjust_stock(stock=stock, new_qty=Decimal("15"), comment="нашёл")
+        stock.refresh_from_db()
+        assert stock.qty == Decimal("15")
+        assert ledger.qty == Decimal("5")
+
+    def test_adjust_down(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        ledger = adjust_stock(stock=stock, new_qty=Decimal("7"))
+        stock.refresh_from_db()
+        assert stock.qty == Decimal("7")
+        assert ledger.qty == Decimal("-3")
+
+    def test_adjust_no_change(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        result = adjust_stock(stock=stock, new_qty=Decimal("10"))
+        assert result is None
+
+    def test_reserve_ok(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        reserve_stock(stock=stock, qty=Decimal("3"))
+        stock.refresh_from_db()
+        assert stock.reserved_qty == Decimal("3")
+        assert stock.available_qty == Decimal("7")
+
+    def test_reserve_too_much(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        with pytest.raises(ValueError, match="Недостаточно"):
+            reserve_stock(stock=stock, qty=Decimal("15"))
+
+    def test_unreserve_ok(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        stock.reserved_qty = Decimal("5")
+        stock.save()
+        unreserve_stock(stock=stock, qty=Decimal("3"))
+        stock.refresh_from_db()
+        assert stock.reserved_qty == Decimal("2")
+
+    def test_unreserve_too_much(self, workspace_id):
+        stock = self._make_stock(workspace_id, qty="10")
+        stock.reserved_qty = Decimal("5")
+        stock.save()
+        with pytest.raises(ValueError, match="Недостаточно резерва"):
+            unreserve_stock(stock=stock, qty=Decimal("7"))
