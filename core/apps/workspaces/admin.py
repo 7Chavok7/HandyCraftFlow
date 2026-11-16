@@ -5,7 +5,7 @@ from .models import Workspace, WorkspaceSettings
 
 @admin.register(Workspace)
 class WorkspaceAdmin(admin.ModelAdmin):
-    list_display = ("name", "owner", "created_at")
+    list_display = ('id', "name", "owner", "created_at")
     readonly_fields = ("created_at",)
 
 

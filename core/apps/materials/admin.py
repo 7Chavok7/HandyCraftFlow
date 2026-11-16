@@ -22,8 +22,12 @@ class MaterialLedgerInline(admin.TabularInline):
 @admin.register(MaterialBatch)
 class MaterialBatchAdmin(admin.ModelAdmin):
     list_display = (
-        "material_type", "manufacturer", "qty_remaining",
-        "unit_cost", "purchased_at", "is_exhausted",
+        "material_type", 
+        "manufacturer", 
+        "qty_remaining",
+        "unit_cost", 
+        "purchased_at", 
+        "is_exhausted",
     )
     list_filter = ("is_exhausted", "manufacturer")
     readonly_fields = ("qty_remaining", "is_exhausted")

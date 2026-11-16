@@ -130,3 +130,21 @@ class VariantEconomicsView(APIView):
             "price": str(price),
             "profit_per_production_hour": str(per_hour),
         })
+        
+        
+class CurrentWorkspaceView(APIView):
+    """Возвращает текущий workspace.
+
+    MVP: первый Workspace из БД (без auth).
+    TODO: когда появится авторизация — Workspace текущего пользователя.
+    """
+
+    def get(self, request):
+        from apps.workspaces.models import Workspace
+        ws = Workspace.objects.first()
+        if not ws:
+            return Response(
+                {"error": "no workspace. Create one in /admin/workspaces/workspace/add/"},
+                status=404,
+            )
+        return Response({"id": str(ws.id), "name": ws.name})

@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from apps.api.views import (
     guide, catalog, materials, production, warehouse, pricing, promo, alerts,
 )
-from apps.api.views.dashboard import TodayDashboardView, VariantEconomicsView
+from apps.api.views.dashboard import TodayDashboardView, VariantEconomicsView, CurrentWorkspaceView
 
 
 router = DefaultRouter()
@@ -56,4 +56,5 @@ urlpatterns = [
     path("", include(router.urls)),
     path("dashboard/today/", TodayDashboardView.as_view(), name="dashboard-today"),
     path("dashboard/economics/", VariantEconomicsView.as_view(), name="dashboard-economics"),
+    path("me/workspace/", CurrentWorkspaceView.as_view(), name="me-workspace"),
 ]

@@ -58,3 +58,18 @@ class TestVariantEconomics:
             f"/api/v1/dashboard/economics/?variant_id=99999"
         )
         assert response.status_code == 404
+        
+
+@pytest.mark.django_db
+class TestCurrentWorkspace:
+    def test_no_workspace_returns_404(self):
+        client = APIClient()
+        response = client.get("/api/v1/me/workspace/")
+        assert response.status_code == 404
+
+    def test_returns_first_workspace(self, workspace):
+        client = APIClient()
+        response = client.get("/api/v1/me/workspace/")
+        assert response.status_code == 200
+        assert response.data["id"] == str(workspace.id)
+        assert response.data["name"] == "Мастерская"

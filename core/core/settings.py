@@ -9,7 +9,7 @@ load_dotenv(BASE_DIR.parent / ".env")
 
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'dev-only')
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
-DEBUG = os.getenv('DJANGO_DEBUG', 'True') == True
+DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 INTERNAL_API_TOKEN = os.getenv("INTERNAL_API_TOKEN", "dev-token")
 
