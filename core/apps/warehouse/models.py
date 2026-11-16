@@ -98,6 +98,7 @@ class Stock(models.Model):
                 name="unique_stock_per_variant_warehouse",
             ),
         ]
+        ordering = ["warehouse", "variant"]
 
     def __str__(self):
         return f"{self.variant} @ {self.warehouse}: {self.qty}"
