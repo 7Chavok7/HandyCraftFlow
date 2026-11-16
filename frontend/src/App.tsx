@@ -17,6 +17,8 @@ import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { logout } from "./api/auth";
+import WarehousePage from "./pages/WarehousePage";
+import { ShopOutlined } from "@ant-design/icons";
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -33,6 +35,7 @@ function SideMenu() {
         { key: "/products", icon: <AppstoreOutlined />, label: <Link to="/products">Товары</Link> },
         { key: "/printers", icon: <PrinterOutlined />, label: <Link to="/printers">Принтеры</Link> },
         { key: "/production", icon: <ToolOutlined />, label: <Link to="/production">Производство</Link> },
+        { key: "/warehouse", icon: <ShopOutlined />, label: <Link to="/warehouse">Склад</Link> },
       ]}
     />
   );
@@ -88,6 +91,7 @@ function AppShell() {
               <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/printers" element={<PrintersPage />} />
               <Route path="/production" element={<ProductionPage />} />
+              <Route path="/warehouse" element={<WarehousePage />} />
             </Routes>
           </ProtectedRoute>
         </Content>
