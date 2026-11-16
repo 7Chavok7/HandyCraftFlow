@@ -3,6 +3,9 @@ from django.apps import AppConfig
 
 
 class WorkspacesConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'apps.workspaces'
-    verbose_name = 'Рабочие кабинеты'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "apps.workspaces"
+    verbose_name = "Рабочие кабинеты"
+
+    def ready(self):
+        from . import signals  # noqa: F401

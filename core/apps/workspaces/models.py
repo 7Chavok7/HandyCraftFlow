@@ -42,7 +42,7 @@ class WorkspaceSettings(models.Model):
         INCOME_GOAL = 'income_goal', 'Хочу зарабатывать XXX ₽/мес.'
         IGNORE_LABOR = 'ignore_labor', 'Не учитывать мой труд'
     
-    workspace = models.ForeignKey(
+    workspace = models.OneToOneField(
         Workspace,
         on_delete=models.CASCADE,
         related_name='settings',

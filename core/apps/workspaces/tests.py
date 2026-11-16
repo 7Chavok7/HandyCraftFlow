@@ -32,47 +32,48 @@ class TestWorkspace:
 @pytest.mark.django_db
 class TestEffectiveLaborRate:
     def test_ignore_labor(self, workspace):
-        s = WorkspaceSettings.objects.create(
-            workspace=workspace,
-            labor_mode=WorkspaceSettings.LaborMode.IGNORE_LABOR,
-            labor_rate=Decimal("500"),
-        )
+        s = workspace.settings
+        s.labor_mode = WorkspaceSettings.LaborMode.IGNORE_LABOR
+        s.labor_rate = Decimal("500")
+        s.save()
         assert s.effective_labor_rate == Decimal("0")
 
     def test_manual_rate(self, workspace):
-        s = WorkspaceSettings.objects.create(
-            workspace=workspace,
-            labor_mode=WorkspaceSettings.LaborMode.MANUAL_RATE,
-            labor_rate=Decimal("500"),
-        )
+        s = workspace.settings
+        s.labor_mode = WorkspaceSettings.LaborMode.MANUAL_RATE
+        s.labor_rate = Decimal("500")
+        s.save()
         assert s.effective_labor_rate == Decimal("500")
 
     def test_manual_rate_none(self, workspace):
-        s = WorkspaceSettings.objects.create(
-            workspace=workspace,
-            labor_mode=WorkspaceSettings.LaborMode.MANUAL_RATE,
-            labor_rate=None,
-        )
+        s = workspace.settings
+        s.labor_mode = WorkspaceSettings.LaborMode.MANUAL_RATE
+        s.labor_rate = None
+        s.save()
         assert s.effective_labor_rate == Decimal("0")
 
     def test_income_goal(self, workspace):
-        s = WorkspaceSettings.objects.create(
-            workspace=workspace,
-            labor_mode=WorkspaceSettings.LaborMode.INCOME_GOAL,
-            income_goal=Decimal("60000"),
-            work_hours_per_day=Decimal("6"),
-        )
-        # 60000 / (6 * 22) = 454.54...
+        s = workspace.settings
+        s.labor_mode = WorkspaceSettings.LaborMode.INCOME_GOAL
+        s.income_goal = Decimal("60000")
+        s.work_hours_per_day = Decimal("6")
+        s.save()
         assert s.effective_labor_rate == Decimal("454.55")
 
     def test_income_goal_without_goal(self, workspace):
-        s = WorkspaceSettings.objects.create(
-            workspace=workspace,
-            labor_mode=WorkspaceSettings.LaborMode.INCOME_GOAL,
-            income_goal=None,
-        )
+        s = workspace.settings
+        s.labor_mode = WorkspaceSettings.LaborMode.INCOME_GOAL
+        s.income_goal = None
+        s.save()
         assert s.effective_labor_rate == Decimal("0")
-    
+
     def test_equipment_hour_cost_default(self, workspace):
-        s = WorkspaceSettings.objects.create(workspace=workspace)
-        assert s.equipment_hour_cost == Decimal("0")
+        assert workspace.settings.equipment_hour_cost == Decimal("0")
+
+
+@pytest.mark.django_db
+class TestWorkspaceSettingsSignal:
+    def test_settings_created_on_workspace_create(self, user):
+        ws = Workspace.objects.create(name="Новый", owner=user)
+        assert hasattr(ws, "settings")
+        assert ws.settings.labor_mode == WorkspaceSettings.LaborMode.IGNORE_LABOR

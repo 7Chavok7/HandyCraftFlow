@@ -22,13 +22,12 @@ def workspace(db):
     User = get_user_model()
     user = User.objects.create_user(username="seller", password="x")
     ws = Workspace.objects.create(name="Мастерская", owner=user)
-    WorkspaceSettings.objects.create(
-        workspace=ws,
-        labor_mode=WorkspaceSettings.LaborMode.MANUAL_RATE,
-        labor_rate=Decimal("500"),
-        tax_rate=Decimal("4"),
-        equipment_hour_cost=Decimal("20"),
-    )
+    # settings создан сигналом
+    ws.settings.labor_mode = WorkspaceSettings.LaborMode.MANUAL_RATE
+    ws.settings.labor_rate = Decimal("500")
+    ws.settings.tax_rate = Decimal("4")
+    ws.settings.equipment_hour_cost = Decimal("20")
+    ws.settings.save()
     return ws
 
 

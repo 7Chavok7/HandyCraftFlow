@@ -12,14 +12,13 @@ User = get_user_model()
 
 @pytest.fixture
 def workspace(db):
+    User = get_user_model()
     user = User.objects.create_user(username="seller", password="x")
     ws = Workspace.objects.create(name="Мастерская", owner=user)
-    WorkspaceSettings.objects.create(
-        workspace=ws,
-        labor_mode=WorkspaceSettings.LaborMode.IGNORE_LABOR,
-        tax_rate=Decimal("4"),
-        equipment_hour_cost=Decimal("0"),
-    )
+    ws.settings.labor_mode = WorkspaceSettings.LaborMode.IGNORE_LABOR
+    ws.settings.tax_rate = Decimal("4")
+    ws.settings.equipment_hour_cost = Decimal("0")
+    ws.settings.save()
     return ws
 
 @pytest.fixture

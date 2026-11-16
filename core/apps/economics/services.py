@@ -149,3 +149,19 @@ def _get_workspace_settings(variant):
     """Настройки workspace через variant → product → workspace_id."""
     from apps.workspaces.models import WorkspaceSettings
     return WorkspaceSettings.objects.get(workspace_id=variant.product.workspace_id)
+
+def _get_workspace_settings(variant):
+    """Настройки workspace через variant → product → workspace_id.
+
+    Если WorkspaceSettings нет — создаём дефолтные (защита от старых данных).
+    """
+    from apps.workspaces.models import WorkspaceSettings
+    settings, _ = WorkspaceSettings.objects.get_or_create(
+        workspace_id=variant.product.workspace_id,
+        defaults={
+            "labor_mode": WorkspaceSettings.LaborMode.IGNORE_LABOR,
+            "tax_rate": 4,
+            "equipment_hour_cost": 0,
+        },
+    )
+    return settings
