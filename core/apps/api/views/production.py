@@ -17,6 +17,7 @@ from apps.api.serializers.production import (
     ProductionJobSerializer,
     ProductionJobReportSerializer,
 )
+from apps.api.permissions import HasInternalToken
 from apps.production.services import complete_production_job
 
 
@@ -49,7 +50,7 @@ class ProductionJobViewSet(viewsets.ModelViewSet):
     queryset = ProductionJob.objects.select_related("variant", "profile")
     serializer_class = ProductionJobSerializer
 
-    @action(detail=True, methods=["post"])
+    @action(detail=True, methods=["post"], permission_classes=[HasInternalToken])
     def report(self, request, pk=None):
         """Farm сообщает факт: списание материала + поступление изделий."""
         job = self.get_object()
