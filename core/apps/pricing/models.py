@@ -62,7 +62,7 @@ class PriceHistory(models.Model):
     class Meta:
         verbose_name = "История цены"
         verbose_name_plural = "История цен"
-        ordering = ["-created_at"]
+        ordering = ["-created_at", "-id"]
         indexes = [
             models.Index(fields=["variant", "-created_at"]),
         ]

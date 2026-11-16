@@ -4,6 +4,7 @@ from rest_framework.routers import DefaultRouter
 from apps.api.views import (
     guide, catalog, materials, production, warehouse, pricing, promo, alerts,
 )
+from apps.api.views import auth as auth_views
 from apps.api.views.dashboard import TodayDashboardView, VariantEconomicsView, CurrentWorkspaceView
 
 
@@ -54,7 +55,11 @@ router.register("alerts", alerts.AlertViewSet)
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("auth/login/", auth_views.LoginView.as_view(), name="auth-login"),
+    path("auth/logout/", auth_views.LogoutView.as_view(), name="auth-logout"),
+    path("auth/me/", auth_views.MeView.as_view(), name="auth-me"),
     path("dashboard/today/", TodayDashboardView.as_view(), name="dashboard-today"),
     path("dashboard/economics/", VariantEconomicsView.as_view(), name="dashboard-economics"),
     path("me/workspace/", CurrentWorkspaceView.as_view(), name="me-workspace"),
+    path("auth/csrf/", auth_views.CsrfTokenView.as_view(), name="auth-csrf"),
 ]

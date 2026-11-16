@@ -10,6 +10,7 @@ import {
 import TodayPage from "./pages/TodayPage";
 import ProductsPage from './pages/ProductsPage';
 import PrintersPage from './pages/PrintersPage';
+import ProductDetailPage from './pages/ProductDetailPage';
 import LoginPage from "./pages/LoginPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -81,6 +82,7 @@ function AppShell() {
             <Routes>
               <Route path="/" element={<TodayPage />} />
               <Route path="/products" element={<ProductsPage />} />
+              <Route path="/products/:id" element={<ProductDetailPage />} />
               <Route path="/printers" element={<PrintersPage />} />
             </Routes>
           </ProtectedRoute>

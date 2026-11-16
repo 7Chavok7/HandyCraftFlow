@@ -133,15 +133,17 @@ class VariantEconomicsView(APIView):
         
         
 class CurrentWorkspaceView(APIView):
-    """Возвращает текущий workspace.
-
-    MVP: первый Workspace из БД (без auth).
-    TODO: когда появится авторизация — Workspace текущего пользователя.
-    """
+    """Workspace текущего пользователя (auth) или первый (fallback, dev)."""
 
     def get(self, request):
         from apps.workspaces.models import Workspace
-        ws = Workspace.objects.first()
+        from apps.api.views.auth import _workspace_for_user
+
+        if request.user.is_authenticated:
+            ws = _workspace_for_user(request.user)
+        else:
+            ws = Workspace.objects.first()
+
         if not ws:
             return Response(
                 {"error": "no workspace. Create one in /admin/workspaces/workspace/add/"},
