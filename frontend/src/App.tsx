@@ -19,6 +19,9 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { logout } from "./api/auth";
 import WarehousePage from "./pages/WarehousePage";
 import { ShopOutlined } from "@ant-design/icons";
+import PromotionsPage from "./pages/PromotionsPage";
+import { TagOutlined } from "@ant-design/icons";
+
 
 const { Header, Sider, Content } = Layout;
 const { Title } = Typography;
@@ -31,12 +34,13 @@ function SideMenu() {
       mode="inline"
       selectedKeys={[location.pathname]}
       items={[
-        { key: "/", icon: <DashboardOutlined />, label: <Link to="/">Сегодня</Link> },
-        { key: "/products", icon: <AppstoreOutlined />, label: <Link to="/products">Товары</Link> },
-        { key: "/printers", icon: <PrinterOutlined />, label: <Link to="/printers">Принтеры</Link> },
-        { key: "/production", icon: <ToolOutlined />, label: <Link to="/production">Производство</Link> },
-        { key: "/warehouse", icon: <ShopOutlined />, label: <Link to="/warehouse">Склад</Link> },
-      ]}
+      { key: "/", icon: <DashboardOutlined />, label: <Link to="/">Сегодня</Link> },
+      { key: "/products", icon: <AppstoreOutlined />, label: <Link to="/products">Товары</Link> },
+      { key: "/production", icon: <ToolOutlined />, label: <Link to="/production">Производство</Link> },
+      { key: "/warehouse", icon: <ShopOutlined />, label: <Link to="/warehouse">Склад</Link> },
+      { key: "/promotions", icon: <TagOutlined />, label: <Link to="/promotions">Акции</Link> },
+      { key: "/printers", icon: <PrinterOutlined />, label: <Link to="/printers">Принтеры</Link> },
+    ]}
     />
   );
 }
@@ -92,6 +96,7 @@ function AppShell() {
               <Route path="/printers" element={<PrintersPage />} />
               <Route path="/production" element={<ProductionPage />} />
               <Route path="/warehouse" element={<WarehousePage />} />
+              <Route path="/promotions" element={<PromotionsPage />} />
             </Routes>
           </ProtectedRoute>
         </Content>
