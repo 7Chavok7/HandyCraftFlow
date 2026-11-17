@@ -21,6 +21,8 @@ import WarehousePage from "./pages/WarehousePage";
 import { ShopOutlined } from "@ant-design/icons";
 import PromotionsPage from "./pages/PromotionsPage";
 import { TagOutlined } from "@ant-design/icons";
+import SettingsPage from "./pages/SettingsPage";
+import { SettingOutlined } from "@ant-design/icons";
 
 
 const { Header, Sider, Content } = Layout;
@@ -40,6 +42,7 @@ function SideMenu() {
       { key: "/warehouse", icon: <ShopOutlined />, label: <Link to="/warehouse">Склад</Link> },
       { key: "/promotions", icon: <TagOutlined />, label: <Link to="/promotions">Акции</Link> },
       { key: "/printers", icon: <PrinterOutlined />, label: <Link to="/printers">Принтеры</Link> },
+      { key: "/settings", icon: <SettingOutlined />, label: <Link to="/settings">Настройки</Link> },
     ]}
     />
   );
@@ -97,6 +100,7 @@ function AppShell() {
               <Route path="/production" element={<ProductionPage />} />
               <Route path="/warehouse" element={<WarehousePage />} />
               <Route path="/promotions" element={<PromotionsPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </ProtectedRoute>
         </Content>

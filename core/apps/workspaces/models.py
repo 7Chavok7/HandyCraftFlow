@@ -74,7 +74,7 @@ class WorkspaceSettings(models.Model):
         decimal_places=1,
         default=4,
     )
-    target_margin_persent = models.DecimalField(
+    target_margin_percent = models.DecimalField(
         "Целевая маржа, %",
         max_digits=5,
         decimal_places=2,

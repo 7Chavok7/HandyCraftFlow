@@ -6,6 +6,7 @@ from apps.api.views import (
 )
 from apps.api.views import auth as auth_views
 from apps.api.views.dashboard import TodayDashboardView, VariantEconomicsView, CurrentWorkspaceView
+from apps.api.views import workspaces as workspace_views
 
 
 router = DefaultRouter()
@@ -51,6 +52,9 @@ router.register("promotion-items", promo.PromotionItemViewSet)
 
 # alerts
 router.register("alerts", alerts.AlertViewSet)
+
+# workspace
+router.register("settings", workspace_views.WorkspaceSettingsViewSet, basename="settings")
 
 
 urlpatterns = [
