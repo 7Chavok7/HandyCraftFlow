@@ -7,25 +7,33 @@ function getCookie(name: string): string | null {
 
 export const api = axios.create({
   baseURL: "/api/v1",
-  withCredentials: true,   // ← куки (sessionid, csrftoken)
+  withCredentials: true,
   headers: { "Content-Type": "application/json" },
 });
 
-// Interceptor для логирования ошибок (потом уберём/заменим)
+api.interceptors.request.use((config) => {
+  const method = (config.method || "").toLowerCase();
+  if (["post", "put", "patch", "delete"].includes(method)) {
+    const token = getCookie("csrftoken");
+    if (token) {
+      // Для axios 1.x: используем headers.set()
+      if (config.headers && typeof (config.headers as any).set === "function") {
+        (config.headers as any).set("X-CSRFToken", token);
+      } else {
+        config.headers = config.headers || {};
+        (config.headers as any)["X-CSRFToken"] = token;
+      }
+    }
+  }
+  return config;
+});
+
 api.interceptors.response.use(
   (r) => r,
   (error) => {
     if (error.response?.status !== 403) {
       console.error("API error:", error.response?.data || error.message);
     }
-    return Promise.reject(error);
-  }
-);
-
-api.interceptors.response.use(
-  (r) => r,
-  (error) => {
-    console.error("API error:", error.response?.data || error.message);
     return Promise.reject(error);
   }
 );
