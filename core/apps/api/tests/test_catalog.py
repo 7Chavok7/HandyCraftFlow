@@ -92,3 +92,33 @@ class TestProductCRUD:
         client = APIClient()
         response = client.delete(f"/api/v1/products/{p.id}/")
         assert response.status_code == 204
+        
+        
+@pytest.mark.django_db
+class TestVariantCRUD:
+    def test_create_variant(self, workspace, variant):
+        client = APIClient()
+        response = client.post("/api/v1/variants/", {
+            "product": variant.product.id,
+            "name": "Красный",
+            "extra_cost": "5.00",
+            "is_active": True,
+        }, format="json")
+        assert response.status_code == 201
+        assert response.data["name"] == "Красный"
+
+    def test_update_variant(self, variant):
+        client = APIClient()
+        response = client.patch(
+            f"/api/v1/variants/{variant.id}/",
+            {"name": "Тёмно-зелёный"},
+            format="json",
+        )
+        assert response.status_code == 200
+        variant.refresh_from_db()
+        assert variant.name == "Тёмно-зелёный"
+
+    def test_delete_variant(self, variant):
+        client = APIClient()
+        response = client.delete(f"/api/v1/variants/{variant.id}/")
+        assert response.status_code == 204

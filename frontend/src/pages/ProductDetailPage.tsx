@@ -2,9 +2,12 @@ import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   Card, Col, Row, Spin, Empty, Descriptions, Table, Tag, Alert, Button,
+  Modal, Form, Input, InputNumber, Upload, Space, message, Popconfirm, Switch,
 } from "antd";
-import { ArrowLeftOutlined } from "@ant-design/icons";
-import { fetchVariantDetail } from "../api/catalog";
+import {
+  ArrowLeftOutlined, PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined,
+} from "@ant-design/icons";
+import { fetchVariantDetail, createVariant, updateVariant, deleteVariant } from "../api/catalog";
 import type { VariantDetail } from "../api/catalog";
 
 export default function ProductDetailPage() {
@@ -13,13 +16,80 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  // CRUD
+  const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<any | null>(null);
+  const [form] = Form.useForm();
+
+  const load = () => {
     if (!id) return;
+    setLoading(true);
     fetchVariantDetail(Number(id))
       .then(setDetail)
       .catch(() => setError("Не удалось загрузить карточку"))
       .finally(() => setLoading(false));
-  }, [id]);
+  };
+
+  useEffect(() => { load(); }, [id]);
+
+  const openCreate = () => {
+    setEditing(null);
+    form.resetFields();
+    setOpen(true);
+  };
+
+  const openEdit = (v: any) => {
+    setEditing(v);
+    form.setFieldsValue({
+      name: v.name,
+      vendor_code: v.vendor_code,
+      barcode: v.barcode,
+      extra_cost: v.extra_cost,
+      is_active: v.is_active,
+    });
+    setOpen(true);
+  };
+
+  const onSubmit = async (values: any) => {
+    if (!detail) return;
+    const fd = new FormData();
+    fd.append("product", String(detail.variant.product ? undefined : "")); // placeholder
+    // Фактически product_id берём из detail.variant
+    fd.delete("product");
+    fd.append("product", String((detail as any).variant.product ?? ""));
+    fd.append("name", values.name);
+    fd.append("vendor_code", values.vendor_code || "");
+    fd.append("barcode", values.barcode || "");
+    fd.append("extra_cost", String(values.extra_cost ?? 0));
+    fd.append("is_active", values.is_active ? "true" : "false");
+    if (values.image?.[0]?.originFileObj) {
+      fd.append("image", values.image[0].originFileObj);
+    }
+
+    try {
+      if (editing) {
+        await updateVariant(editing.id, fd);
+        message.success("Вариант обновлён");
+      } else {
+        await createVariant(fd);
+        message.success("Вариант создан");
+      }
+      setOpen(false);
+      load();
+    } catch (e: any) {
+      message.error(e.response?.data?.name?.[0] || "Ошибка");
+    }
+  };
+
+  const onDelete = async (vid: number) => {
+    try {
+      await deleteVariant(vid);
+      message.success("Удалён");
+      load();
+    } catch {
+      message.error("Ошибка удаления");
+    }
+  };
 
   if (loading) return <Spin />;
   if (error) return <Alert type="error" message={error} showIcon />;
@@ -37,14 +107,54 @@ export default function ProductDetailPage() {
 
       <Row gutter={16}>
         <Col span={24}>
-          <Card title={`Вариант: ${variant.name}`} size="small" style={{ marginBottom: 16 }}>
-            <Descriptions column={3} size="small">
-              <Descriptions.Item label="Артикул">{variant.vendor_code || "—"}</Descriptions.Item>
-              <Descriptions.Item label="Баркод">{variant.barcode || "—"}</Descriptions.Item>
-              <Descriptions.Item label="Надбавка">
-                {variant.extra_cost} ₽
-              </Descriptions.Item>
-            </Descriptions>
+          <Card
+            title={`Варианты товара`}
+            size="small"
+            style={{ marginBottom: 16 }}
+            extra={
+              <Button
+                type="primary"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={openCreate}
+              >
+                Добавить вариант
+              </Button>
+            }
+          >
+            <Table
+              dataSource={[variant]}
+              rowKey="id"
+              pagination={false}
+              size="small"
+              columns={[
+                { title: "ID", dataIndex: "id", width: 60 },
+                { title: "Название", dataIndex: "name" },
+                { title: "Артикул", dataIndex: "vendor_code" },
+                { title: "Баркод", dataIndex: "barcode" },
+                { title: "Надбавка", dataIndex: "extra_cost" },
+                {
+                  title: "Активен",
+                  dataIndex: "is_active",
+                  render: (v: boolean) => (v ? <Tag color="green">Да</Tag> : <Tag>Нет</Tag>),
+                },
+                {
+                  title: "Действия",
+                  render: (_, v: any) => (
+                    <Space>
+                      <Button size="small" icon={<EditOutlined />} onClick={() => openEdit(v)}>
+                        Ред.
+                      </Button>
+                      <Popconfirm title="Удалить?" onConfirm={() => onDelete(v.id)}>
+                        <Button size="small" danger icon={<DeleteOutlined />}>
+                          Удал.
+                        </Button>
+                      </Popconfirm>
+                    </Space>
+                  ),
+                },
+              ]}
+            />
           </Card>
         </Col>
 
@@ -75,7 +185,7 @@ export default function ProductDetailPage() {
                 pagination={false}
                 size="small"
                 columns={[
-                  { title: "Склад", render: (_, s) => s.warehouse },
+                  { title: "Склад", render: (_, s) => s.warehouse_name ?? s.warehouse },
                   { title: "Кол-во", dataIndex: "qty" },
                   { title: "Резерв", dataIndex: "reserved_qty" },
                   { title: "Доступно", dataIndex: "available_qty" },
@@ -118,6 +228,37 @@ export default function ProductDetailPage() {
           </Card>
         </Col>
       </Row>
+
+      <Modal
+        title={editing ? `Редактировать вариант: ${editing.name}` : "Новый вариант"}
+        open={open}
+        onCancel={() => setOpen(false)}
+        onOk={() => form.submit()}
+        okText="Сохранить"
+      >
+        <Form form={form} layout="vertical" onFinish={onSubmit}>
+          <Form.Item label="Название варианта" name="name" rules={[{ required: true }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Артикул продавца" name="vendor_code">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Баркод" name="barcode">
+            <Input />
+          </Form.Item>
+          <Form.Item label="Надбавка к себестоимости, ₽" name="extra_cost" initialValue={0}>
+            <InputNumber min={0} step={0.01} style={{ width: "100%" }} />
+          </Form.Item>
+          <Form.Item label="Активен" name="is_active" valuePropName="checked" initialValue={true}>
+            <Switch />
+          </Form.Item>
+          <Form.Item label="Фото" name="image" valuePropName="fileList" getValueFromEvent={(e) => e?.fileList}>
+            <Upload beforeUpload={() => false} listType="picture" maxCount={1}>
+              <Button icon={<UploadOutlined />}>Загрузить</Button>
+            </Upload>
+          </Form.Item>
+        </Form>
+      </Modal>
     </>
   );
 }

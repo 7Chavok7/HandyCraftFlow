@@ -13,8 +13,19 @@ class ProductVariantSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductVariant
         fields = [
-            "id", "name", "color", "vendor_code", "barcode",
-            "extra_cost", "is_active", "image",
+            "id", 
+            "product",
+            "name", 
+            "color", 
+            "vendor_code", 
+            "barcode",
+            "extra_cost", 
+            "is_active", 
+            "image",
+        ]
+        read_only_fields = [
+            "id",
+            "created_at",
         ]
 
 

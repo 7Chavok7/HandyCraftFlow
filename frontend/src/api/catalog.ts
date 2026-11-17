@@ -1,9 +1,10 @@
 import { api } from "./client";
-import type { Product, Paginated } from "../types";
+import type { Product, Paginated, ProductVariant } from "../types";
 
 export interface VariantDetail {
   variant: {
     id: number;
+    product: number;
     name: string;
     color: number | null;
     vendor_code: string;
@@ -79,4 +80,20 @@ export async function updateProduct(
 
 export async function deleteProduct(id: number): Promise<void> {
   await api.delete(`/products/${id}/`);
+}
+
+export async function createVariant(formData: FormData): Promise<ProductVariant> {
+  const { data } = await api.post<ProductVariant>("/variants/", formData);
+  return data;
+}
+
+export async function updateVariant(
+  id: number, formData: FormData
+): Promise<ProductVariant> {
+  const { data } = await api.patch<ProductVariant>(`/variants/${id}/`, formData);
+  return data;
+}
+
+export async function deleteVariant(id: number): Promise<void> {
+  await api.delete(`/variants/${id}/`);
 }

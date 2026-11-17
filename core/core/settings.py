@@ -144,3 +144,7 @@ REST_FRAMEWORK = {
 
 # Внутренний токен API (Core <-> Farm)
 INTERNAL_API_TOKEN = os.getenv("INTERNAL_API_TOKEN", "dev-token")
+
+CSRF_COOKIE_HTTPONLY = False   # чтобы JS мог читать (по умолчанию False — ок)
+CSRF_COOKIE_SAMESITE = "Lax"   # для localhost — ок
+CSRF_TRUSTED_ORIGINS = ["http://localhost:5173", "http://127.0.0.1:5173"]
