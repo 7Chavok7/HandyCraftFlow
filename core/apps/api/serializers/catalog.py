@@ -10,23 +10,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
 
 class ProductVariantSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
     class Meta:
         model = ProductVariant
         fields = [
-            "id", 
-            "product",
-            "name", 
-            "color", 
-            "vendor_code", 
-            "barcode",
-            "extra_cost", 
-            "is_active", 
-            "image",
+            "id", "product", "product_name", "name", "color",
+            "vendor_code", "barcode", "extra_cost", "is_active", "image",
         ]
-        read_only_fields = [
-            "id",
-            "created_at",
-        ]
+        read_only_fields = ["id"]
 
 
 

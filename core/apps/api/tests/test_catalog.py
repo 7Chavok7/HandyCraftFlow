@@ -61,6 +61,13 @@ class TestVariantDetailAPI:
         assert response.status_code == 200
         assert len(response.data["stocks"]) == 1
         
+    def test_detail_returns_all_variants(self, variant):
+        ProductVariant.objects.create(product=variant.product, name="Красный")
+        client = APIClient()
+        response = client.get(f"/api/v1/variants/{variant.id}/detail/")
+        assert response.status_code == 200
+        assert len(response.data["all_variants"]) == 2
+        
         
 @pytest.mark.django_db
 class TestProductCRUD:
@@ -122,3 +129,8 @@ class TestVariantCRUD:
         client = APIClient()
         response = client.delete(f"/api/v1/variants/{variant.id}/")
         assert response.status_code == 204
+        
+    def test_variant_has_product_name(self, variant):
+        client = APIClient()
+        response = client.get(f"/api/v1/variants/{variant.id}/")
+        assert response.data["product_name"] == "Органайзер"

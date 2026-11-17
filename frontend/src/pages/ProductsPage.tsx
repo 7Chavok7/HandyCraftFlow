@@ -6,6 +6,7 @@ import {
 import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { fetchProducts } from "../api/dashboard";
+import { fetchCurrentWorkspace } from "../api/dashboard";
 import { createProduct, updateProduct, deleteProduct } from "../api/catalog";
 import type { Product } from "../types";
 
@@ -42,13 +43,21 @@ export default function ProductsPage() {
     setOpen(true);
   };
 
+  const [workspaceId, setWorkspaceId] = useState("");
+
+  useEffect(() => {
+    fetchCurrentWorkspace().then((ws) => setWorkspaceId(ws.id));
+  }, []);
+  
+
   const onSubmit = async (values: any) => {
     const fd = new FormData();
-    fd.append("workspace_id", "4ce03463-41fc-483b-87db-eb5cc7ee44da"); // TODO: из auth
     fd.append("name", values.name);
     fd.append("description", values.description || "");
     fd.append("is_active", values.is_active ? "true" : "false");
-    if (values.image?.[0]?.originFileObj) {
+    fd.append("workspace_id", workspaceId);
+    if (values.image?.[0]?.originFileObj)
+     {
       fd.append("image", values.image[0].originFileObj);
     }
 
@@ -105,9 +114,13 @@ export default function ProductsPage() {
             title: "Название",
             dataIndex: "name",
             render: (name, p) => (
-              <a onClick={() => navigate(`/products/${p.variants[0]?.id}`)}>
-                {name}
-              </a>
+              p.variants.length > 0 ? (
+                <a onClick={() => navigate(`/products/${p.variants[0].id}`)}>
+                  {name}
+                </a>
+              ) : (
+                <span>{name} <Tag color="orange">нет вариантов</Tag></span>
+              )
             ),
           },
           { title: "Вариантов", render: (_, r) => r.variants.length },

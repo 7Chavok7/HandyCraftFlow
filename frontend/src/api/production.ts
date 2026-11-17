@@ -53,3 +53,24 @@ export async function completeJob(
   );
   return data;
 }
+
+export async function fetchVariantsForSelect(): Promise<Array<{
+  id: number; name: string; product_name: string;
+}>> {
+  const { data } = await api.get<Paginated<any>>("/variants/");
+  return data.results.map((v: any) => ({
+    id: v.id,
+    name: v.name,
+    product_name: v.product_name ?? "",
+  }));
+}
+
+export async function fetchBatchesForSelect(): Promise<Array<{
+  id: number; name: string;
+}>> {
+  const { data } = await api.get<Paginated<any>>("/batches/");
+  return data.results.map((b: any) => ({
+    id: b.id,
+    name: `${b.material_type_name} • ${b.manufacturer_name || "?"} • ${b.qty_remaining}`,
+  }));
+}

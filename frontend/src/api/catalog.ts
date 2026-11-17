@@ -12,6 +12,17 @@ export interface VariantDetail {
     extra_cost: string;
     is_active: boolean;
   };
+  all_variants: Array<{
+    id: number;
+    product: number;
+    product_name: string;
+    name: string;
+    vendor_code: string;
+    barcode: string;
+    extra_cost: string;
+    is_active: boolean;
+    image: string | null;
+  }>;
   recipe: {
     id: number;
     variant: number;
@@ -32,6 +43,7 @@ export interface VariantDetail {
     variant: number;
     variant_name: string;
     warehouse: number;
+    warehouse_name: string;
     qty: string;
     reserved_qty: string;
     available_qty: string;
@@ -54,7 +66,11 @@ export async function fetchVariantDetail(
     `/variants/${variantId}/detail/`,
     { params: { marketplace, price } }
   );
-  return data;
+  return {
+    ...data,
+    all_variants: data.all_variants ?? [],
+    stocks: data.stocks ?? [],
+  };
 }
 
 export async function fetchProductsList(): Promise<Product[]> {
@@ -63,18 +79,14 @@ export async function fetchProductsList(): Promise<Product[]> {
 }
 
 export async function createProduct(formData: FormData): Promise<Product> {
-  const { data } = await api.post<Product>("/products/", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await api.post<Product>("/products/", formData);
   return data;
 }
 
 export async function updateProduct(
   id: number, formData: FormData
 ): Promise<Product> {
-  const { data } = await api.patch<Product>(`/products/${id}/`, formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const { data } = await api.patch<Product>(`/products/${id}/`, formData);
   return data;
 }
 

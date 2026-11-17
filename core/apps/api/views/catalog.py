@@ -68,9 +68,15 @@ class ProductVariantViewSet(viewsets.ModelViewSet):
             profit_per_production_hour(variant, price, marketplace)
             if price > 0 else Decimal("0")
         )
+        
+        all_variants = ProductVariant.objects.filter(
+            product=variant.product
+        ).order_by("name")
+        all_variants_data = ProductVariantSerializer(all_variants, many=True).data
 
         return Response({
             "variant": ProductVariantSerializer(variant).data,
+            "all_variants": all_variants_data,
             "recipe": recipe_data,
             "stocks": stocks_data,
             "economics": {

@@ -52,8 +52,12 @@ export default function ProductDetailPage() {
 
   const onSubmit = async (values: any) => {
     if (!detail) return;
+    if (!detail.variant.product) {
+      message.error("Не удалось определить product_id");
+      return;
+    }
     const fd = new FormData();
-    fd.append("product", String(detail.variant.product ? undefined : "")); // placeholder
+    fd.append("product", String(detail.variant.product));
     // Фактически product_id берём из detail.variant
     fd.delete("product");
     fd.append("product", String((detail as any).variant.product ?? ""));
@@ -95,7 +99,7 @@ export default function ProductDetailPage() {
   if (error) return <Alert type="error" message={error} showIcon />;
   if (!detail) return <Empty />;
 
-  const { variant, recipe, stocks, economics } = detail;
+  const { all_variants, recipe, stocks, economics } = detail;
 
   return (
     <>
@@ -110,7 +114,7 @@ export default function ProductDetailPage() {
           <Card
             title={`Варианты товара`}
             size="small"
-            style={{ marginBottom: 16 }}
+            style={{ marginBottom: 5 }}
             extra={
               <Button
                 type="primary"
@@ -123,7 +127,7 @@ export default function ProductDetailPage() {
             }
           >
             <Table
-              dataSource={[variant]}
+              dataSource={detail.all_variants}
               rowKey="id"
               pagination={false}
               size="small"
@@ -158,45 +162,10 @@ export default function ProductDetailPage() {
           </Card>
         </Col>
 
-        <Col span={12}>
-          <Card title="Экономика (WB)" size="small" style={{ marginBottom: 16 }}>
-            <Descriptions column={1} size="small">
-              <Descriptions.Item label="Себестоимость">
-                <strong>{economics.cost} ₽</strong>
-              </Descriptions.Item>
-              <Descriptions.Item label="Красная линия">
-                <Tag color="red">{economics.min_price} ₽</Tag>
-              </Descriptions.Item>
-              <Descriptions.Item label="Доход с часа принтера">
-                {economics.profit_per_production_hour} ₽/ч
-              </Descriptions.Item>
-            </Descriptions>
-          </Card>
-        </Col>
-
-        <Col span={12}>
-          <Card title="Остатки" size="small" style={{ marginBottom: 16 }}>
-            {stocks.length === 0 ? (
-              <Empty description="Нет остатков" />
-            ) : (
-              <Table
-                dataSource={stocks}
-                rowKey="id"
-                pagination={false}
-                size="small"
-                columns={[
-                  { title: "Склад", render: (_, s) => s.warehouse_name ?? s.warehouse },
-                  { title: "Кол-во", dataIndex: "qty" },
-                  { title: "Резерв", dataIndex: "reserved_qty" },
-                  { title: "Доступно", dataIndex: "available_qty" },
-                ]}
-              />
-            )}
-          </Card>
-        </Col>
-
         <Col span={24}>
-          <Card title="Рецепт" size="small">
+          <Card title="Рецепт" 
+          size="small"
+          style={{ marginBottom: 5 }}>
             {!recipe ? (
               <Empty description="Рецепт не задан" />
             ) : (
@@ -227,6 +196,44 @@ export default function ProductDetailPage() {
             )}
           </Card>
         </Col>
+
+        <Col span={12}>
+          <Card title="Экономика (WB)" size="small" style={{ marginBottom: 16 }}>
+            <Descriptions column={1} size="small">
+              <Descriptions.Item label="Себестоимость">
+                <strong>{economics.cost} ₽</strong>
+              </Descriptions.Item>
+              <Descriptions.Item label="Минимальная цена">
+                <Tag color="red">{economics.min_price} ₽</Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Доход с часа принтера">
+                {economics.profit_per_production_hour} ₽/ч
+              </Descriptions.Item>
+            </Descriptions>
+          </Card>
+        </Col>
+
+        <Col span={12}>
+          <Card title="Остатки" size="small" style={{ marginBottom: 16 }}>
+            {stocks.length === 0 ? (
+              <Empty description="Нет остатков" />
+            ) : (
+              <Table
+                dataSource={stocks}
+                rowKey="id"
+                pagination={false}
+                size="small"
+                columns={[
+                  { title: "Склад", render: (_, s) => s.warehouse_name ?? s.warehouse },
+                  { title: "Кол-во", dataIndex: "qty" },
+                  { title: "Резерв", dataIndex: "reserved_qty" },
+                  { title: "Доступно", dataIndex: "available_qty" },
+                ]}
+              />
+            )}
+          </Card>
+        </Col>
+
       </Row>
 
       <Modal

@@ -102,3 +102,15 @@ class TestProductionJobReportAPI:
         assert response.status_code == 200
         job.refresh_from_db()
         assert job.status == ProductionJob.Status.DONE
+        
+    def test_create_job(self, variant):
+        ws_id = uuid.uuid4()
+        client = APIClient()
+        response = client.post("/api/v1/jobs/", {
+            "workspace_id": str(ws_id),
+            "variant": variant.id,
+            "qty_planned": 5,
+        }, format="json")
+        assert response.status_code == 201
+        assert response.data["qty_planned"] == 5
+        assert response.data["status"] == "queued"
